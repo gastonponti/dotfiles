@@ -12,7 +12,7 @@ else
 fi
 
 # Tap for OS X Applications
-brew tap caskroom/versions
+brew tap homebrew/cask-versions
 # Tap for fonts
 brew tap homebrew/cask-fonts
 
@@ -51,6 +51,7 @@ symlink-ensure "rgrc"
 
 section-title "Setup Vim/NeoVim"
 brew-ensure "python"
+brew-ensure "pyenv"
 brew-ensure "neovim"
 brew-ensure "vim"
 mkdir -p "$HOME/.config"
@@ -110,6 +111,7 @@ brew-cask-ensure iterm2
 brew-cask-ensure visual-studio-code
 brew-cask-ensure discord
 brew-cask-ensure notion
+brew-cask-ensure firefox
 
 section-title "Installing Android Development Apps"
 brew-cask-ensure adoptopenjdk8

@@ -787,6 +787,7 @@ call plug#begin('~/.config/nvim/plugged')
         let g:Hexokinase_ftAutoload = ['css']
         " let g:Hexokinase_virtualText = '█'
         let g:Hexokinase_virtualText = '■'
+        let g:Hexokinase_v2 = 0
     " }}}
 
     " markdown {{{
