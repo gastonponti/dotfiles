@@ -1,13 +1,13 @@
 # gitconfig
 [user]
-	name = Mariano Cortesi
-	email = mcortesi@gmail.com
+	name = Gaston Ponti
+	email = pontigaston@gmail.com
 [github]
-	user = mcortesi
+	user = gastonponti
 #[init]
 #    templatedir = ~/.dotfiles/git/templates
 [credential]
-	helper = osxkeychain    
+	helper = osxkeychain
 [core]
     excludesfile = ~/.gitignore_global
     pager = less -FXRS -x2
@@ -135,6 +135,10 @@
     recent = "!git for-each-ref --sort='-committerdate' --format='%(color:red)%(refname)%(color:reset)%09%(committerdate)' refs/heads | sed -e 's-refs/heads/--' | less -XFR"
     latest = "!git for-each-ref --sort='-committerdate' --format='%(color:red)%(refname)%(color:reset)%09%(committerdate)' refs/remotes | sed -e 's-refs/remotes/origin/--' | less -XFR"
 
+    # show orphans
+    orphanl = !git log --pretty=oneline --abbrev-commit --graph --decorate `git reflog | cut -d " " -f 1`
+    orphank = !gitk --all `git reflow | cut -c1-7`&
+
     # grep commands
 
     # 'diff grep'
@@ -156,3 +160,7 @@
     # update = !git fetch upstream && git rebase upstream/`git rev-parse --abbrev-ref HEAD`    
 [fetch]
 	prune = true
+[includeIf "gitdir:$CODE_DIR/celo/"]
+    path = .gitconfig-celo
+[includeIf "gitdir:~/code/go/src/github.com/ethereum/go-ethereum/"]
+    path = .gitconfig-celo

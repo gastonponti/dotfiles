@@ -39,8 +39,8 @@ brew-ensure "hub"
 brew-ensure "diff-so-fancy"
 symlink-ensure "git/gitconfig"
 symlink-ensure "git/gitignore_global"
+symlink-ensure "git/gitconfig-celo"
 customize-gitconfig
-
 
 section-title "Ensure Install fzf"
 brew-ensure "ripgrep"   # We use ripgrep for fzf
@@ -77,6 +77,8 @@ dev_formulas=(
     git-standup
     entr
     jq
+    tmux
+    pidcat
 )
 brew-ensure-list "${dev_formulas[@]}"
 
@@ -92,7 +94,8 @@ symlink-ensure "node/eslintrc"
 
 section-title "GO Development Packages"
 go_formulas=(
-    go
+    go@1.13
+    golangci-lint
 )
 brew-ensure-list "${go_formulas[@]}" 
 
@@ -105,6 +108,8 @@ brew-cask-ensure google-chrome
 brew-cask-ensure spotify
 brew-cask-ensure iterm2
 brew-cask-ensure visual-studio-code
+brew-cask-ensure discord
+brew-cask-ensure notion
 
 section-title "Installing Android Development Apps"
 brew-cask-ensure adoptopenjdk8
@@ -115,3 +120,9 @@ brew-cask-ensure android-studio
 
 section-title "Installing GCloud Apps"
 brew-cask-ensure google-cloud-sdk
+
+section-title "Installing Required Celo Packages"
+brew-ensure "sqlite"    # Required for Rosetta
+brew-ensure "terraform" # Use to manage infrastructure
+section-title "Other Clouds"
+brew-ensure "awscli"

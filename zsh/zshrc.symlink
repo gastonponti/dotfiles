@@ -1,3 +1,6 @@
+# Uncomment to debug startup (and at the end of the file)
+# Taken from https://blog.askesis.pl/post/2017/04/how-to-debug-zsh-startup-time.html
+#zmodload zsh/zprof
 export DOTFILES=$HOME/.dotfiles
 export ZSH=$DOTFILES/zsh
 
@@ -105,9 +108,13 @@ export GIT_EDITOR='nvim'
 export RIPGREP_CONFIG_PATH="$HOME/.rgrc"
 
 # GO Setup
-export CODE_DIR="$HOME/code"
-export GOPATH="$CODE_DIR/go"
-export PATH=$PATH:${GOPATH//://bin:}/bin
+export CODE_DIR="$HOME/Documents"
+export GOROOT="/usr/local/go"
+export GOPATH="$GOROOT/bin"
+export PATH=$PATH:${GOPATH}
+
+# Use go1.13 for now
+export PATH="/usr/local/opt/go@1.13/bin:$PATH"  
 
 # Android Setup
 export ANDROID_HOME=/usr/local/share/android-sdk
@@ -234,7 +241,9 @@ fi
 
 # initialize autocomplete
 autoload -U compinit add-zsh-hook
-compinit
+for dump in ~/.zcompdump(N.mh+24); do
+  compinit
+done
 
 # matches case insensitive for lowercase
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
@@ -251,6 +260,8 @@ zstyle ':completion:*' menu select=4 search
 # prefer verbose option when available
 zstyle ':completion:*' verbose yes
 
+# Install kubecetl completion
+[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
 
 ############################################
 # CELO Stuff
@@ -258,13 +269,108 @@ zstyle ':completion:*' verbose yes
 
 # Where you keep your Celo stuff
 export CELO_ROOT=$CODE_DIR/celo
-export GETH_BUILD_PATH=$CELO_ROOT/geth/build/bin/
+export CELO_BLOCKCHAIN=$CELO_ROOT/celo-blockchain
+export CELO_MONOREPO=$CELO_ROOT/celo-monorepo
+export GETH_BUILD_PATH=$CELO_BLOCKCHAIN/geth/build/bin/
 
 # Your github handle
-export HANDLE=mcortesi
+export HANDLE=gastonponti
 
 # Run SSH Agent. Use ssh-add to add and remember keys for the session.
 # celo-monorepo will need you to do this with your github key when updating geth dependencies.
 # eval `ssh-agent`
 
 alias celotooljs="$CELO_ROOT/celo-monorepo/packages/celotool/bin/celotooljs.sh"
+alias celocli-dev="$CELO_ROOT/celo-monorepo/packages/cli/bin/run"
+
+#   lr:  Full Recursive Directory Listing
+#   ------------------------------------------
+alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
+
+#   mans:   Search manpage given in agument '1' for term given in argument '2' (case insensitive)
+#           displays paginated result with colored search terms and two lines surrounding each hit.            Example: mans mplayer codec
+#   --------------------------------------------------------------------
+mans () {
+    man $1 | grep -iC2 --color=always $2 | less
+}
+
+#   showa: to remind yourself of an alias (given some part of it)
+#   ------------------------------------------------------------
+showa () { /usr/bin/grep --color=always -i -a1 $@ ~/Library/init/bash/aliases.bash | grep -v '^\s*$' | less -FSRXc ; }
+
+
+#   cdf:  'Cd's to frontmost window of MacOS Finder
+#   ------------------------------------------------------
+cdf () {
+    currFolderPath=$( /usr/bin/osascript <<EOT
+        tell application "Finder"
+            try
+        set currFolder to (folder of the front window as alias)
+            on error
+        set currFolder to (path to desktop folder as alias)
+            end try
+            POSIX path of currFolder
+        end tell
+EOT
+    )
+    echo "cd to \"$currFolderPath\""
+    cd "$currFolderPath"
+}
+
+#   extract:  Extract most know archives with one command
+#   ---------------------------------------------------------
+extract () {
+    if [ -f $1 ] ; then
+        case $1 in
+        *.tar.bz2)   tar xjf $1     ;;
+        *.tar.gz)    tar xzf $1     ;;
+        *.bz2)       bunzip2 $1     ;;
+        *.rar)       unrar e $1     ;;
+        *.gz)        gunzip $1      ;;
+        *.tar)       tar xf $1      ;;
+        *.tbz2)      tar xjf $1     ;;
+        *.tgz)       tar xzf $1     ;;
+        *.zip)       unzip $1       ;;
+        *.Z)         uncompress $1  ;;
+        *.7z)        7z x $1        ;;
+        *)     echo "'$1' cannot be extracted via extract()" ;;
+            esac
+        else
+            echo "'$1' is not a valid file"
+        fi
+}
+    
+#   ---------------------------
+#   4. SEARCHING
+#   ---------------------------
+
+alias qfind="find . -name "                 # qfind:    Quickly search for file
+ff () { /usr/bin/find . -name "$@" ; }      # ff:       Find file under the current directory
+ffs () { /usr/bin/find . -name "$@"'*' ; }  # ffs:      Find file whose name starts with a given string
+ffe () { /usr/bin/find . -name '*'"$@" ; }  # ffe:      Find file whose name ends with a given string
+
+#   spotlight: Search for a file using MacOS Spotlight's metadata
+#   -----------------------------------------------------------
+spotlight () { mdfind "kMDItemDisplayName == '$@'wc"; }
+
+############################################
+# Rust
+############################################
+export PATH=$PATH:~/.cargo/bin/
+
+############################################
+# Python
+############################################
+eval "$(pyenv init -)"
+
+############################################
+# Android
+############################################
+#export ANDROID_HOME=/usr/local/share/android-sdk
+export ANDROID_NDK=/usr/local/share/android-ndk
+export ANDROID_SDK_ROOT=/usr/local/share/android-sdk
+# this is an optional gradle configuration that should make builds faster
+export GRADLE_OPTS='-Dorg.gradle.daemon=true -Dorg.gradle.parallel=true -Dorg.gradle.jvmargs="-Xmx4096m -XX:+HeapDumpOnOutOfMemoryError"'
+
+############################################
+export PATH=$PATH:$CELO_ROOT/solc
